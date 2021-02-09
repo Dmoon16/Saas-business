@@ -78,8 +78,7 @@ const Plans = () => {
                 });
             });
             if(p.length > 0){
-                const ascendingOrderPlans = p.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-                setPlans(ascendingOrderPlans);
+                setPlans(p);
             }
             setLoading(false);
         });
