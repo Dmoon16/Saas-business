@@ -1,12 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useHistory } from 'react-router-dom';
+import Field from './Field';
+import { Link } from 'react-router-dom';
 import Loader from '../Loader';
-import { Button } from "@mui/material";
-import ButtonRow from "./ButtonRow";
 
 const Form = (props) => {
-    const history = useHistory();
 
     const {
         handleSubmit,
@@ -26,25 +24,23 @@ const Form = (props) => {
     }
 
     return (
-        <form {...others} onSubmit={(e) => e.preventDefault()}>
+        <form {...others} onSubmit={handleSubmit}>
             {children}
             {enableDefaultButtons && 
-                <ButtonRow>
-                    <Button variant="contained" color={btnClass} disabled={disabled} onClick={handleSubmit}>
+                <Field>
+                    <button className={"btn mr-2 btn-"+btnClass} disabled={(disabled?'disabled':'')}>
                         {inSubmit && 
                             <Loader />
                         }
+                        {((disabled && !inSubmit)?(<i className="fa fa-ban mr-1"></i>):'')}
                         {submitBtnText || 'Submit'}
-                    </Button>
+                    </button>
                     {backToUrl && backToUrl !== "" &&
-                        <Button variant="contained" color="secondary" disabled={inSubmit} onClick={(e) => {
-                            e.preventDefault();
-                            history.push(backToUrl);
-                        }}>
+                        <Link className={"btn btn-secondary"+(inSubmit?" disabled":"")} to={backToUrl}>
                             {backBtnText || 'Back'}
-                        </Button>
+                        </Link>
                     }
-                </ButtonRow>
+                </Field>
             }
         </form>
     )

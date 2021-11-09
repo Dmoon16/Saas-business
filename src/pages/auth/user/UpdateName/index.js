@@ -1,15 +1,14 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import { useHistory } from 'react-router-dom';
-import { Form, FormResult, Input } from '../../../../components/Form';
+import React, { useState, useContext } from "react";
+import { Link } from 'react-router-dom';
+import { Form, Field, Input } from '../../../../components/Form';
 import { AuthContext } from '../../../../components/FirebaseAuth';
+import Alert from '../../../../components/Alert';
 import UserPageLayout from '../../../../components/user/UserPageLayout';
 import { userUpdateName } from '../../../../libs/user';
 
 const UpdateName = () => {
     const title = "Change Your Name";
-    const backToUrl = "/user/profile";
-    const history = useHistory();
-    const mountedRef = useRef(true);
+    
 
     const [fullname, setFullname] = useState({
         hasError: false,
@@ -26,22 +25,14 @@ const UpdateName = () => {
 
     const [inSubmit, setInSubmit] = useState(false);
 
-    useEffect(() => {
-        return () => { 
-            mountedRef.current = false
-        }
-    },[]);
-
     return (
         <UserPageLayout title={title} >
             { result.status === null &&
                 <Form handleSubmit={e => {
                     e.preventDefault();
-                    setInSubmit(true);
                     authUser.user.updateProfile({
                         displayName: fullname.value
                     }).then(() => {
-                        if (!mountedRef.current) return null 
                         userUpdateName();
                         setResult({
                             status: true,
@@ -49,48 +40,40 @@ const UpdateName = () => {
                         });
                         setInSubmit(false);
                     }).catch(err => {
-                        if (!mountedRef.current) return null 
                         setResult({
                             status: false,
                             message: err.message
                         });
                         setInSubmit(false);
-                    });
+                    })
                 }}
                 disabled={fullname.hasError || fullname.value===null || inSubmit}
                 inSubmit={inSubmit}
                 enableDefaultButtons={true}
-                backToUrl={backToUrl}
+                backToUrl="/user/profile"
                 >
-                    <Input label="Your Name" type="text" name="full-name" maxLen={100} required={true} changeHandler={setFullname} fullWidth variant="outlined" />
+                    <Field label="Your Name">
+                        <Input type="text" name="full-name" maxLen={100} required={true} changeHandler={setFullname} />
+                    </Field>
                 </Form>
             }
             { result.status === false &&
-                <FormResult 
-                    severity="error"
-                    resultMessage={result.message}
-                    primaryText="Try Again"
-                    primaryAction={() => {
+                <>
+                    <Alert type="danger" dismissible={false} message={result.message} />
+                    <button className="btn btn-primary mr-2" onClick={() => {
                         setResult({
                             status: null,
                             message: ''
                         })
-                    }}
-                    secondaryText="View Profile"
-                    secondaryAction={() => {
-                        history.push(backToUrl);
-                    }}
-                />
+                    }} >Try Again</button>
+                    <Link className="btn btn-secondary" to="/user/profile">View Profile</Link>
+                </>
             }
             { result.status === true &&
-                <FormResult 
-                    severity="success"
-                    resultMessage={result.message}
-                    primaryText="View Profile"
-                    primaryAction={() => {
-                        history.push(backToUrl);
-                    }}
-                />
+                <>
+                    <Alert type="success" dismissible={false} message={result.message} />
+                    <Link className="btn btn-primary" to="/user/profile">View Profile</Link>
+                </>
             }
         </UserPageLayout>
     )

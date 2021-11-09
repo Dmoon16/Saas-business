@@ -1,14 +1,12 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import { useHistory } from 'react-router-dom';
-import { Form, FormResult } from '../../../../components/Form';
+import React, { useState, useContext } from "react";
+import { Link } from 'react-router-dom';
+import { Form, Field } from '../../../../components/Form';
 import { AuthContext } from '../../../../components/FirebaseAuth';
+import Alert from '../../../../components/Alert';
 import UserPageLayout from '../../../../components/user/UserPageLayout';
 
 const UpdateEmail = () => {
     const title = "Verify Your Email";
-    const backToUrl = "/user/profile";
-    const history = useHistory();   
-    const mountedRef = useRef(true);  
 
     const { authUser } = useContext(AuthContext);
 
@@ -19,12 +17,6 @@ const UpdateEmail = () => {
 
     const [inSubmit, setInSubmit] = useState(false);
 
-    useEffect(() => {
-        return () => { 
-            mountedRef.current = false
-        }
-    },[]);
-
     return (
         <UserPageLayout title={title} >
             { result.status === null && !authUser.user.emailVerified &&
@@ -32,14 +24,12 @@ const UpdateEmail = () => {
                     e.preventDefault();
                     setInSubmit(true);
                     authUser.user.sendEmailVerification().then(() => {
-                        if (!mountedRef.current) return null
                         setResult({
                             status: true,
                             message: 'Please check your email inbox to verify the email address. Refresh this page after you verified your email address.'
                         });
                         setInSubmit(false);
                     }).catch((err) => {
-                        if (!mountedRef.current) return null
                         setResult({
                             status: false,
                             message: err.message
@@ -52,47 +42,34 @@ const UpdateEmail = () => {
                 enableDefaultButtons={true}
                 backToUrl="/user/profile"
                 >
-                    <div style={{marginTop: '20px', marginBottom: '20px'}}>
-                        Send a verification email to <strong>{authUser.user.email}</strong>
-                    </div>
+                    <Field label="Email Address">
+                        <input type="text" readOnly className="form-control-plaintext" value={authUser.user.email} ></input>
+                    </Field>
                 </Form>
             }
             { result.status === null && authUser.user.emailVerified &&
-                <FormResult 
-                    severity="success"
-                    resultMessage={"Your email is already verified."}
-                    primaryText="View Profile"
-                    primaryAction={() => {
-                        history.push(backToUrl);
-                    }}
-                />
+                <>
+                    <Alert type="success" dismissible={false} message="Your email is already verified." />
+                    <Link className="btn btn-primary" to="/user/profile">View Profile</Link>
+                </>
             }
             { result.status === false &&
-                <FormResult 
-                    severity="error"
-                    resultMessage={result.message}
-                    primaryText="Try Again"
-                    primaryAction={() => {
+                <>
+                    <Alert type="danger" dismissible={false} message={result.message} />
+                    <button className="btn btn-primary mr-2" onClick={() => {
                         setResult({
                             status: null,
                             message: ''
                         })
-                    }}
-                    secondaryText="View Profile"
-                    secondaryAction={() => {
-                        history.push(backToUrl);
-                    }}
-                />
+                    }} >Try Again</button>
+                    <Link className="btn btn-secondary" to="/user/profile">View Profile</Link>
+                </>
             }
             { result.status === true &&
-                <FormResult 
-                    severity="success"
-                    resultMessage={result.message}
-                    primaryText="View Profile"
-                    primaryAction={() => {
-                        window.location.href=backToUrl;
-                    }}
-                />
+                <>
+                    <Alert type="success" dismissible={false} message={result.message} />
+                    <Link className="btn btn-primary" to="/user/profile">View Profile</Link>
+                </>
             }
         </UserPageLayout>
     )

@@ -1,16 +1,14 @@
-import React, { useState, useContext, useEffect, createRef, useRef } from "react";
-import { useHistory } from 'react-router-dom';
-import { Form, FormResult, Input } from '../../../../components/Form';
+import React, { useState, useContext, useEffect, createRef } from "react";
+import { Link } from 'react-router-dom';
+import { Form, Field, Input } from '../../../../components/Form';
 import firebase from "firebase/app";
 import { AuthContext } from '../../../../components/FirebaseAuth';
+import Alert from '../../../../components/Alert';
 import UserPageLayout from '../../../../components/user/UserPageLayout';
 import { log, UPDATE_PHONE } from '../../../../libs/log';
 
 const UpdatePhone = () => {
     const title = "Change Your Phone Number";
-    const backToUrl = "/user/profile";
-    const history = useHistory();
-    const mountedRef = useRef(true);  
 
     const [phoneNumber, setPhoneNumber] = useState({
         hasError: false,
@@ -60,12 +58,6 @@ const UpdatePhone = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     },[result]);  
 
-    useEffect(() => {
-        return () => { 
-            mountedRef.current = false
-        }
-    },[]);
-
     return (
         <UserPageLayout title={title} >
             { result.status === PHONESTEP &&
@@ -78,7 +70,6 @@ const UpdatePhone = () => {
                         phoneNumber.value,
                         window.recaptchaVerifier
                     ).then(vid => {
-                        if (!mountedRef.current) return null
                         setRecaptchaVerified(true);
                         setVerificationId(vid);
                         setResult({
@@ -87,7 +78,6 @@ const UpdatePhone = () => {
                         });
                         setInSubmit(false);    
                     }).catch(err => {
-                        if (!mountedRef.current) return null
                         setPhoneNumber({
                             hasError: true,
                             error: err.message,
@@ -101,10 +91,12 @@ const UpdatePhone = () => {
                 enableDefaultButtons={true}
                 backToUrl="/user/profile"
                 >
-                    <Input label="Phone Number" type="text" name="phone-number" hasError={phoneNumber.hasError} error={phoneNumber.error} required={true} changeHandler={setPhoneNumber} fullWidth variant="outlined" />
-                    <div style={{marginTop:'20px',marginBottom:'20px'}}>
+                    <Field label="Phone Number">
+                        <Input type="text" name="phone-number" hasError={phoneNumber.hasError} error={phoneNumber.error} required={true} changeHandler={setPhoneNumber} />
+                    </Field>
+                    <Field label="">
                         <div ref={(ref)=>recaptcha=ref}></div>
-                    </div>
+                    </Field>
                 </Form>
             }
             { result.status === VERIFYSTEP && 
@@ -113,7 +105,6 @@ const UpdatePhone = () => {
                     setInSubmit(true);
                     var cred = firebase.auth.PhoneAuthProvider.credential(verificationId, verificationCode.value);
                     authUser.user.updatePhoneNumber(cred).then(() => {
-                        if (!mountedRef.current) return null
                         log(UPDATE_PHONE);
                         setResult({
                             status: SUCCESS,
@@ -121,7 +112,6 @@ const UpdatePhone = () => {
                         });
                         setInSubmit(false);
                     }).catch(err => {
-                        if (!mountedRef.current) return null
                         setResult({
                             status: FAILURE,
                             message: err.message
@@ -134,35 +124,28 @@ const UpdatePhone = () => {
                 enableDefaultButtons={true}
                 backToUrl="/user/profile"
                 >
-                    <Input label="Verification Code" type="text" name="verification-code" hasError={verificationCode.hasError} error={verificationCode.error} required={true} changeHandler={setVerificationCode} fullWidth variant="outlined" />
+                    <Field label="Verification Code">
+                        <Input type="text" name="verification-code" hasError={verificationCode.hasError} error={verificationCode.error} required={true} changeHandler={setVerificationCode} />
+                    </Field>
                 </Form>
             }
             { result.status === FAILURE &&
-                <FormResult 
-                    severity="error"
-                    resultMessage={result.message}
-                    primaryText="Try Again"
-                    primaryAction={() => {
+                <>
+                    <Alert type="danger" dismissible={false} message={result.message} />
+                    <button className="btn btn-primary mr-2" onClick={() => {
                         setResult({
                             status: PHONESTEP,
                             message: ''
                         })
-                    }}
-                    secondaryText="View Profile"
-                    secondaryAction={() => {
-                        history.push(backToUrl);
-                    }}
-                />
+                    }} >Try Again</button>
+                    <Link className="btn btn-secondary" to="/user/profile">View Profile</Link>
+                </>
             }
             { result.status === SUCCESS &&
-                <FormResult 
-                    severity="success"
-                    resultMessage={result.message}
-                    primaryText="View Profile"
-                    primaryAction={(e) => {
-                        history.push(backToUrl);
-                    }}
-                />
+                <>
+                    <Alert type="success" dismissible={false} message={result.message} />
+                    <Link className="btn btn-primary" to="/user/profile">View Profile</Link>
+                </>
             }
         </UserPageLayout>
     )

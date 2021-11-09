@@ -164,7 +164,7 @@ First, you will need to create tax rates in your Stripe account via the console 
 
 Once you created the tax rates in Stripe, copy the tax rate IDs from Stripe to create the tax rates in your Firestore database.
 
-Create a new collection called "taxes" in Firestore, and use the Stripe tax rate ID as the document ID for each tax rate document in Firestore.
+Create a new collection called "taxes" in Firesotre, and use the Stripe tax rate ID as the document ID for each tax rate document in Firestore.
 
 Below is the JSON object of the Australia GST tax rate in Firestore:
 
@@ -228,6 +228,6 @@ Now, everything is ready, you can deploy your Firebase project with the followin
 
 `firebase deploy`
 
-Please note that Firebase assumes the folder is `public` but `npm run build` builds the application in the folder `build`. So when you initialise Firebase hosting in command line, you should change the folder from `public` to `build` otherwise you will see a blank page only as [issue #2](https://github.com/chaoming/fireact/issues/2).
+Please note that Firebase assumes the folder is `public` but `npm run build` builds the application in the folder `build`. So when you initalise Firebase hosting in command line, you should change the folder from `public` to `build` otherwise you will see a blank page only as [issue #2](https://github.com/chaoming/fireact/issues/2).
 
 For more details on how to deploy Firebase, please see [https://firebase.google.com/docs/hosting/test-preview-deploy](https://firebase.google.com/docs/hosting/test-preview-deploy)

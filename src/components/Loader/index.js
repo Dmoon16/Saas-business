@@ -1,30 +1,16 @@
 import React from 'react';
-import { CircularProgress, Typography } from "@mui/material"
+import './loader.scss';
 
-const Loader = ({size: Size, text: Text}) => {
-    if(!Size){
-        Size=22;
-    }
-
-    const fontStyle = {
-        paddingLeft: Size/10+'px',
-        fontSize: Size+'px',
-    };
-
-    return(
-        <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-        }}>
-            <CircularProgress size={Size} />
-            {typeof(Text) !== 'undefined' && Text !== "" ?(
-                <Typography style={fontStyle}>{Text}</Typography>
-            ):(
-                <></>
-            )}
-        </span>
-    );
-};
+const Loader = ({size: Size, text: Text}) => (
+    <span>
+        <i className={"fa fa-spinner fa-"+Size+" fa-spin loader"} />
+        {typeof(Text) !== 'undefined' && Text !== "" ?(
+            <>{" "+Text}</>
+        ):(
+            <></>
+        )}
+    </span>
+    
+);
 
 export default Loader;
